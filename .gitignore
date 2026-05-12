@@ -1,0 +1,52 @@
+# ----- Python -----
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# ----- Virtual envs -----
+venv/
+.venv/
+env/
+
+# ----- Sistema operacional -----
+.DS_Store
+Thumbs.db
+
+# ----- Editores -----
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ----- Variaveis de ambiente / segredos -----
+# IMPORTANTE: nunca comitar credenciais nem chaves
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# ----- Dados do usuario (uploads, exports) -----
+# Os arquivos de upload sao temporarios em memoria, mas se algum dia salvar
+# em disco, NAO comitar -- sao dados sensiveis (carteira de clientes etc).
+*.xlsx
+*.xls
+*.csv
+!tests/**/*.csv
+
+# ----- Logs e tmp -----
+*.log
+*.tmp
+*.bak
+tmp/
+
+# ----- Tests / coverage -----
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# ----- Backups locais -----
+*-BACKUP/
+*.backup

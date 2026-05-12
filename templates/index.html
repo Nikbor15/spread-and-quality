@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+ <meta charset="UTF-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+ <title>Spread &amp; Quality — Crédito Privado</title>
+ <link rel="preconnect" href="https://fonts.googleapis.com" />
+ <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+ <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+
+<!-- ── HEADER ─────────────────────────────────────────────────────────────── -->
+<header class="app-header">
+ <div class="header-brand">
+ <div>
+ <span class="brand-name">Spread <span class="brand-amp">&amp;</span>Quality</span>
+ <span class="brand-sub">Crédito Privado · Renda Fixa</span>
+ </div>
+ </div>
+ <div class="header-meta" id="headerMeta">
+ <span class="meta-chip meta-idle">Nenhum arquivo carregado</span>
+ </div>
+ <button class="meta-chip meta-diag" id="diagChip" onclick="openDiagModal()" style="display:none;cursor:pointer;border:none;font:inherit" title="Ver diagnóstico de matches que falharam"></button>
+ <div class="header-actions">
+ <button class="btn-ghost" id="btnResumo" onclick="openResumoModal()" title="Resumo executivo: top oportunidades / trocas / alertas">
+ <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
+ Resumo
+</button>
+ <button class="btn-ghost port-fab" id="btnPortfolio" onclick="togglePortfolio()" title="Ver carteira">
+ <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+ Carteira
+ <span class="port-fab-badge" id="portCountFab" style="display:none">0</span>
+</button>
+ <button class="btn-ghost" id="btnUpload" onclick="openUpload()">
+ <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+ Upload
+</button>
+ <a class="btn-ghost" href="/logout" title="Sair / fazer logout" style="text-decoration:none">
+ <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+ Sair
+</a>
+ </div>
+</header>
+
+<!-- ── UPLOAD MODAL ───────────────────────────────────────────────────────── -->
+<div class="modal-overlay" id="uploadModal" onclick="closeUploadOnOverlay(event)">
+ <div class="modal">
+ <div class="modal-header">
+ <span class="modal-title">Upload de Arquivos</span>
+ <button class="modal-close" onclick="closeUpload()">X</button>
+ </div>
+ <div class="modal-body">
+ <p class="modal-desc">Selecione ou arraste os arquivos para análise. O sistema detecta automaticamente o tipo de cada arquivo.</p>
+ <div class="drop-zone" id="dropZone"
+ ondragover="event.preventDefault(); this.classList.add('drag-over')"
+ ondragleave="this.classList.remove('drag-over')"
+ ondrop="handleDrop(event)">
+ <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+ <p>Arraste os arquivos aqui</p>
+ <span>ou</span>
+ <label class="btn-choose">
+ Selecionar
+ <input type="file" id="fileInput" multiple accept=".xlsx,.xls,.csv" onchange="handleFiles(this.files)" style="display:none" />
+ </label>
+ </div>
+ <div class="file-slots">
+ <div class="slot" id="slot-anbima_cri_cra">
+ <span class="slot-icon"></span>
+ <div><span class="slot-label">ANBIMA — Preços CRI/CRA</span><span class="slot-hint">precos-cri-cra.csv</span></div>
+ </div>
+ <div class="slot" id="slot-anbima_debentures">
+ <span class="slot-icon"></span>
+ <div><span class="slot-label">ANBIMA — Debêntures</span><span class="slot-hint">d26abr07.xls</span></div>
+ </div>
+ <div class="slot" id="slot-produtos">
+ <span class="slot-icon"></span>
+ <div><span class="slot-label">Produtos XP — Crédito Privado</span><span class="slot-hint">produtos-renda-fixa-credito-privado.xlsx</span></div>
+ </div>
+ <div class="slot" id="slot-produtos_tp">
+ <span class="slot-icon"></span>
+ <div><span class="slot-label">Produtos XP — Títulos Públicos</span><span class="slot-hint">produtos-renda-fixa-titulos-publicos.xlsx</span></div>
+ </div>
+ <div class="slot" id="slot-empresas">
+ <span class="slot-icon"></span>
+ <div><span class="slot-label">Score de Emissores</span><span class="slot-hint">Lista_Empresas_*.xlsx</span></div>
+ </div>
+ <div class="slot" id="slot-mercado">
+ <span class="slot-icon"></span>
+ <div><span class="slot-label">RF Mercado — Book de Ordens</span><span class="slot-hint">rf_mercado_export_*.csv</span></div>
+ </div>
+ <div class="slot" id="slot-b3_negocios">
+ <span class="slot-icon"></span>
+ <div><span class="slot-label">B3 — Negócios Mercado Secundário</span><span class="slot-hint">negocios_b3_*.csv (tape diário)</span></div>
+ </div>
+ </div>
+ <div id="uploadLog" class="upload-log" style="display:none"></div>
+ </div>
+ <div class="modal-footer">
+ <button class="btn-secondary" onclick="closeUpload()">Fechar</button>
+ <button class="btn-primary" id="btnProcess" onclick="uploadFiles()" disabled>Processar</button>
+ </div>
+ </div>
+</div>
+
+<!-- ── STATS BAR ──────────────────────────────────────────────────────────── -->
+<div class="stats-bar" id="statsBar" style="display:none">
+ <div class="stat-card">
+ <span class="stat-label">IPCA+ Ativos</span>
+ <span class="stat-value" id="statIpca">—</span>
+ </div>
+ <div class="stat-card">
+ <span class="stat-label">CDI Ativos</span>
+ <span class="stat-value" id="statCdi">—</span>
+ </div>
+ <div class="stat-card">
+ <span class="stat-label">Melhor Δ ANBIMA</span>
+ <span class="stat-value mono" id="statBestDelta">—</span>
+ </div>
+ <div class="stat-card">
+ <span class="stat-label">Δ Médio ANBIMA</span>
+ <span class="stat-value mono" id="statAvgDelta">—</span>
+ </div>
+ <div class="stat-card">
+ <span class="stat-label">Maior Score</span>
+ <span class="stat-value mono" id="statTopScore">—</span>
+ </div>
+ <div class="stat-card">
+ <span class="stat-label">Isento IR</span>
+ <span class="stat-value" id="statIsento">—</span>
+ </div>
+ <div class="stat-card">
+ <span class="stat-label">Referência ANBIMA</span>
+ <span class="stat-value" id="statDate">—</span>
+ </div>
+</div>
+
+<!-- ── MAIN CONTENT ───────────────────────────────────────────────────────── -->
+<main class="main-content">
+
+ <!-- TAB NAV + FEE TOGGLE -->
+ <div class="tab-bar">
+ <button class="tab active" data-tab="catalogo">Catálogo XP</button>
+ <button class="tab" data-tab="mercado">RF Mercado</button>
+ <button class="tab" data-tab="oportunidades">Oportunidades</button>
+ <button class="tab" data-tab="b3">B3 Negócios</button>
+ <button class="tab" data-tab="tp">Títulos Públ.</button>
+ <button class="tab" data-tab="empresas">Empresas</button>
+ <button class="tab" data-tab="posicao">Posição</button>
+ <button class="tab" data-tab="carteira" id="tabCarteira">Carteira <span class="tab-badge" id="carteiraBadge" style="display:none">0</span></button>
+ <div class="tab-spacer"></div>
+ <div class="fee-toggle" id="feeToggle">
+ <button id="btnCommission" class="fee-btn active" onclick="setFeeBased(false)">Comissão</button>
+ <button id="btnFeeBased" class="fee-btn" onclick="setFeeBased(true)">Fee-based</button>
+ </div>
+ <div class="tab-count" id="tabCount"></div>
+ </div>
+
+ <!-- FILTER BAR -->
+ <div class="filter-bar" id="filterBar">
+ <div class="filter-search">
+ <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+ <input type="text" id="searchInput" placeholder="Buscar emissor, ticker..." autocomplete="off" oninput="applyFilters()" />
+ </div>
+
+ <!-- Multi-select filters -->
+ <div class="ms-wrap" data-filter="rating" id="ms-rating" style="display:none">
+ <button class="ms-btn" onclick="toggleMs('ms-rating')">Rating<span class="ms-cnt"></span></button>
+ <div class="ms-drop"></div>
+ </div>
+ <div class="ms-wrap" data-filter="setor" id="ms-setor" style="display:none">
+ <button class="ms-btn" onclick="toggleMs('ms-setor')">Setor<span class="ms-cnt"></span></button>
+ <div class="ms-drop"></div>
+ </div>
+ <div class="ms-wrap" data-filter="tipo" id="ms-tipo" style="display:none">
+ <button class="ms-btn" onclick="toggleMs('ms-tipo')">Instrumento<span class="ms-cnt"></span></button>
+ <div class="ms-drop"></div>
+ </div>
+ <div class="ms-wrap" data-filter="publico" id="ms-publico" style="display:none">
+ <button class="ms-btn" onclick="toggleMs('ms-publico')">Público<span class="ms-cnt"></span></button>
+ <div class="ms-drop"></div>
+ </div>
+ <div class="ms-wrap" data-filter="juros" id="ms-juros" style="display:none">
+ <button class="ms-btn" onclick="toggleMs('ms-juros')">Cupom<span class="ms-cnt"></span></button>
+ <div class="ms-drop"></div>
+ </div>
+ <div class="ms-wrap" data-filter="indexador" id="ms-indexador" style="display:none">
+ <button class="ms-btn" onclick="toggleMs('ms-indexador')">Indexador<span class="ms-cnt"></span></button>
+ <div class="ms-drop"></div>
+ </div>
+
+ <!-- Duration range -->
+ <div class="range-filter" id="filterDurWrap" style="display:none">
+ <span class="range-label">Dur.</span>
+ <input class="range-input" type="number" id="filterDurMin" min="0" max="50" step="0.5" placeholder="0a" title="Duração mínima (anos)" oninput="applyFilters()" />
+ <span class="range-sep">–</span>
+ <input class="range-input" type="number" id="filterDurMax" min="0" max="50" step="0.5" placeholder="∞" title="Duração máxima (anos)" oninput="applyFilters()" />
+ </div>
+
+ <!-- Vencimento range -->
+ <div class="range-filter" id="filterVencWrap" style="display:none">
+ <span class="range-label">Vcto</span>
+ <input class="range-input range-date" type="text" id="filterVencMin" placeholder="MM/AAAA" maxlength="7" title="Vencimento a partir de (MM/AAAA)" oninput="applyFilters()" />
+ <span class="range-sep">–</span>
+ <input class="range-input range-date" type="text" id="filterVencMax" placeholder="MM/AAAA" maxlength="7" title="Vencimento até (MM/AAAA)" oninput="applyFilters()" />
+ </div>
+
+ <label class="filter-toggle" id="toggleIsento" style="display:none">
+ <input type="checkbox" id="filterIsento" onchange="applyFilters()" />
+ <span>Isento IR</span>
+ </label>
+ <label class="filter-toggle" id="toggleNaoIsento" style="display:none">
+ <input type="checkbox" id="filterNaoIsento" onchange="applyFilters()" />
+ <span>Não isento</span>
+ </label>
+ <label class="filter-toggle" id="toggleIndicado" style="display:none">
+ <input type="checkbox" id="filterIndicado" onchange="applyFilters()" />
+ <span>Indicados</span>
+ </label>
+ <label class="filter-toggle" id="toggleComOrdem" style="display:none">
+ <input type="checkbox" id="filterComOrdem" onchange="applyFilters()" />
+ <span>Com ordens</span>
+ </label>
+
+ <div class="range-wrap" id="filterLiquidezWrap" style="display:none" title="Volume mínimo na coluna OFFER (onde o cliente compra)">
+ <span class="range-label">Liquidez OFFER:</span>
+ <select id="filterLiquidez" class="range-input" style="width:auto" onchange="applyFilters()">
+ <option value="0">Todos</option>
+ <option value="300000">&gt; R$ 300k</option>
+ <option value="500000">&gt; R$ 500k</option>
+ <option value="700000">&gt; R$ 700k</option>
+ </select>
+ </div>
+
+ <div class="range-wrap" id="filterB3VolWrap" style="display:none" title="Volume mínimo total negociado na B3">
+ <span class="range-label">Vol. B3:</span>
+ <select id="filterB3Vol" class="range-input" style="width:auto" onchange="applyFilters()">
+ <option value="0">Todos</option>
+ <option value="100000">&gt; R$ 100k</option>
+ <option value="500000">&gt; R$ 500k</option>
+ <option value="1000000">&gt; R$ 1MM</option>
+ <option value="5000000">&gt; R$ 5MM</option>
+ </select>
+ </div>
+
+ <label class="filter-toggle" id="toggleSoExtra" style="display:none" title="Mostrar apenas papéis com pelo menos um trade EXTRAGRUPO (preço institucional 'limpo')">
+ <input type="checkbox" id="filterSoExtra" onchange="applyFilters()" />
+ <span>Só com EXTRAGRUPO</span>
+ </label>
+
+ <button class="btn-reset" onclick="resetFilters()">Limpar</button>
+ <span class="filter-result" id="filterResult"></span>
+ </div>
+
+ <!-- TP PASTE AREA -->
+ <div class="tp-area" id="tpArea" style="display:none">
+ <div class="tp-paste-header">
+ <div>
+ <div class="tp-paste-title">Títulos Públicos — Dados ANBIMA</div>
+ <div class="tp-paste-sub">Copie os dados do site da ANBIMA e cole abaixo para enriquecer com taxas indicativas</div>
+ </div>
+ <div class="tp-paste-actions">
+ <button class="btn-primary" onclick="parseTitulos()">
+ <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+ Parsear
+</button>
+ <button class="btn-ghost" onclick="clearTitulos()">Limpar</button>
+ <span id="tpStatus" class="tp-status"></span>
+ </div>
+ </div>
+ <textarea id="tpInput" class="tp-textarea"
+ placeholder="Cole aqui o texto do site da ANBIMA (LFT•Tesouro Selic 2026 / NTN-B•Tesouro IPCA+ 2035...)"></textarea>
+ </div>
+
+ <!-- POSIÇÃO PASTE AREA -->
+ <div class="tp-area posicao-area" id="posicaoArea" style="display:none">
+ <div class="tp-paste-header">
+ <div>
+ <div class="tp-paste-title">Posição — Carteira do Investidor</div>
+ <div class="tp-paste-sub">Cole a posição exportada do portal XP para avaliar possíveis trocas e deságios</div>
+ </div>
+ <div class="tp-paste-actions" style="gap:10px;flex-wrap:wrap">
+ <label class="posicao-patrimonio-wrap" title="Patrimônio total do investidor para calcular impacto do deságio">
+ <span class="posicao-label">Patrimônio total (R$):</span>
+ <input type="text" id="posicaoPatrimonio" class="posicao-input" placeholder="ex: 500.000" oninput="renderPosicaoAnalysis()" />
+ </label>
+ <div class="dest-view-toggle" id="posicaoViewToggle">
+ <button class="dest-view-btn active" id="btnCurva" onclick="setPosicaoView('curva')">Na Curva</button>
+ <button class="dest-view-btn" id="btnMercado" onclick="setPosicaoView('mercado')">A Mercado</button>
+ </div>
+ <button class="btn-primary" onclick="parsePosicao()">
+ <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+ Analisar
+</button>
+ <button class="btn-ghost" onclick="clearPosicao()">Limpar</button>
+ <span id="posicaoStatus" class="tp-status"></span>
+ </div>
+ </div>
+ <textarea id="posicaoInput" class="tp-textarea posicao-textarea"
+ placeholder="Cole aqui a posição do portal XP (pode colar de uma ou várias linhas — o parser detecta os campos automaticamente)
+
+Exemplo:
+CRA Intermodal (VAMO15)
+Vencimento: 15/08/2030 | IPCA + 7,80%
+Taxa de Compra: IPCA + 7,80%
+Taxa de Mercado: IPCA + 8,40%
+R$ Bruto Curva: 52.617,00
+R$ Bruto de Venda (MTM): 50.933,50
+Aplicado: R$ 44.200,00"></textarea>
+ </div>
+
+ <!-- TABLE / DESTAQUES AREA -->
+ <div class="table-wrap" id="tableWrap">
+ <div class="empty-state" id="emptyState">
+ <div class="empty-icon">
+ <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="9" x2="9" y2="21"/></svg>
+ </div>
+ <p class="empty-title">Nenhum dado carregado</p>
+ <p class="empty-sub">Faça upload dos arquivos ANBIMA para iniciar a análise</p>
+ <button class="btn-primary" onclick="openUpload()">Upload de Arquivos</button>
+ </div>
+ <div id="tableContainer" style="display:none">
+ <table class="data-table" id="dataTable">
+ <thead id="tableHead"></thead>
+ <tbody id="tableBody"></tbody>
+ </table>
+ </div>
+ <!-- Botões flutuantes de scroll horizontal (aparecem quando há overflow) -->
+ <button class="h-scroll-btn h-scroll-btn-left" id="hScrollLeft" title="Rolar para a esquerda (<- ou Shift+roda)">‹</button>
+ <button class="h-scroll-btn h-scroll-btn-right" id="hScrollRight" title="Rolar para a direita (-> ou Shift+roda)">›</button>
+ <!-- Posição tab renders here — separate from the main data table -->
+ <div id="posicaoContainer" style="display:none"></div>
+ <!-- Carteira tab — full-page portfolio view -->
+ <div id="carteiraContainer" style="display:none"></div>
+ </div>
+
+</main>
+
+<!-- ── PORTFOLIO OVERLAY ───────────────────────────────────────────────────── -->
+<div class="port-overlay" id="portOverlay" onclick="togglePortfolio()"></div>
+
+<!-- ── PORTFOLIO DRAWER ────────────────────────────────────────────────────── -->
+<div class="port-panel" id="portPanel">
+ <div class="port-hdr">
+ <div class="port-ttl">
+ <span class="port-icon"></span>
+ <span>Carteira</span>
+ <span class="port-badge" id="portCount">0</span>
+ </div>
+ <div class="port-meta-row" id="portMeta"></div>
+ <div class="port-actions">
+ <button class="btn-ghost" onclick="clearPortfolio()">Limpar</button>
+ <button class="port-toggle-btn" onclick="togglePortfolio()" title="Fechar carteira">X</button>
+ </div>
+ </div>
+ <div class="port-alloc-bar" id="portAllocBar"></div>
+ <div class="port-body" id="portBody">
+ <div class="port-table-wrap">
+ <table class="port-table">
+ <thead>
+ <tr>
+ <th>Tipo</th>
+ <th>Emissor</th>
+ <th>Vcto</th>
+ <th>Dur.</th>
+ <th>Spread</th>
+ <th>Taxa efetiva</th>
+ <th>Δ ANBIMA</th>
+ <th>ROA E.A.</th>
+ <th>PU Est.</th>
+ <th style="min-width:80px">Qtd.</th>
+ <th style="min-width:110px">Valor (R$)</th>
+ <th>ROA (R$/ano)</th>
+ <th>Δ Spread (R$)</th>
+ <th></th>
+ </tr>
+ </thead>
+ <tbody id="portRows"></tbody>
+ </table>
+ </div>
+ <div id="portPie"></div>
+ <div class="port-summary" id="portSummary"></div>
+ </div>
+</div>
+
+<!-- ── DIAGNÓSTICO MODAL ──────────────────────────────────────────────────── -->
+<div class="modal-overlay" id="diagModal" onclick="if(event.target===this) closeDiagModal()">
+ <div class="modal" style="max-width:760px">
+ <div class="modal-header">
+ <span class="modal-title">Diagnóstico de matches</span>
+ <button class="modal-close" onclick="closeDiagModal()">X</button>
+ </div>
+ <div class="modal-body" id="diagBody">
+ <p class="modal-desc">Ativos do XP / ANBIMA que não casaram em nenhuma das fontes de referência. Verifique nomes ou tickers diferentes.</p>
+ <div id="diagContent"></div>
+ </div>
+ <div class="modal-footer">
+ <button class="btn-secondary" onclick="closeDiagModal()">Fechar</button>
+ </div>
+ </div>
+</div>
+
+<!-- ── RESUMO EXECUTIVO MODAL ─────────────────────────────────────────────── -->
+<div class="modal-overlay" id="resumoModal" onclick="if(event.target===this) closeResumoModal()">
+ <div class="modal modal-xl">
+ <div class="modal-header">
+ <span class="modal-title">Resumo Executivo</span>
+ <button class="modal-close" onclick="closeResumoModal()">X</button>
+ </div>
+ <div class="modal-body" id="resumoBody" style="padding:20px 24px"></div>
+ <div class="modal-footer">
+ <button class="btn-secondary" onclick="closeResumoModal()">Fechar</button>
+ </div>
+ </div>
+</div>
+
+<!-- ── TOOLTIP ────────────────────────────────────────────────────────────── -->
+<div class="tooltip" id="tooltip"></div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
