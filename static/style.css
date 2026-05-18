@@ -1548,7 +1548,7 @@ a.b3-cell:hover { filter: brightness(1.15); }
  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
 }
 
-.ms-wrap.ms-open.ms-drop {
+.ms-wrap.ms-open .ms-drop {
  display: block;
 }
 
